@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SIGED | Sistema Integrado de Gestão Educacional</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+</head>
+
+<body>
+
+    <!-- ================= LOGIN ================= -->
+
+    <section class="login-screen lg-screen" id="loginScreen">
+
+        <div class="lg-wrap">
+
+            <!-- Painel de apresentação -->
+            <aside class="lg-hero">
+                <div class="lg-brand">
+                    <svg class="lg-logo" viewBox="0 0 120 112" aria-hidden="true" focusable="false">
+                        <path d="M60 4 100 22 60 40 20 22Z" fill="#46a2ff"/>
+                        <path d="M36 32v16c0 7 48 7 48 0V32L60 42Z" fill="#1f6fe5"/>
+                        <path d="M100 22v18" stroke="#46a2ff" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="100" cy="43" r="3.5" fill="#46a2ff"/>
+                        <path d="M10 58 56 68v38L10 96Z" fill="#1d6ff0"/>
+                        <path d="M110 58 64 68v38l46-10Z" fill="#1d6ff0"/>
+                        <path d="M19 64l30 7v26l-30-7Z" fill="#0b2d73"/>
+                        <path d="M101 64l-30 7v26l30-7Z" fill="#0b2d73"/>
+                    </svg>
+                    <div>
+                        <h1>SIGED</h1>
+                        <p>Sistema Integrado de<br>Gestão Educacional</p>
+                    </div>
+                </div>
+
+                <h2 class="lg-headline">Gestão escolar completa</h2>
+                <p class="lg-lead">O SIGED conecta toda a comunidade escolar em um único <strong>sistema</strong>, <strong>facilitando</strong> o dia a dia da sua escola com mais organização, agilidade e segurança.</p>
+
+                <ul class="lg-features">
+                    <li><span class="lg-feat-icon"><i class="fa-solid fa-user-group"></i></span><div><strong>Perfis e permissões</strong><span>Cada perfil só enxerga e faz o que pode.</span></div></li>
+                    <li><span class="lg-feat-icon"><i class="fa-solid fa-calendar-check"></i></span><div><strong>Módulos integrados</strong><span>Uma nota lançada aparece no boletim na hora.</span></div></li>
+                    <li><span class="lg-feat-icon"><i class="fa-solid fa-calendar-days"></i></span><div><strong>Calendários por escola</strong><span>Acadêmico, administrativo e de eventos.</span></div></li>
+                    <li><span class="lg-feat-icon"><i class="fa-solid fa-chart-line"></i></span><div><strong>Indicadores em tempo real</strong><span>Painéis calculados a partir dos dados reais.</span></div></li>
+                </ul>
+
+                <p class="lg-tagline">Juntos por uma<br>educação melhor!</p>
+            </aside>
+
+            <!-- Cartão de acesso -->
+            <main class="lg-card">
+
+                <div class="lg-card-head">
+                    <span class="lg-head-icon"><i class="fa-solid fa-user"></i></span>
+                    <div>
+                        <h2>Acesse o sistema</h2>
+                        <p>Escolha uma conta de demonstração abaixo ou informe e-mail e senha.</p>
+                    </div>
+                </div>
+
+                <form id="loginForm" novalidate>
+
+                    <label for="loginUser">E-mail</label>
+                    <div class="lg-field">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="loginUser" placeholder="Digite seu e-mail" autocomplete="username" required>
+                    </div>
+
+                    <label for="loginPassword">Senha</label>
+                    <div class="lg-field">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Digite sua senha" autocomplete="current-password" required>
+                        <button type="button" class="lg-eye" id="togglePassword" aria-label="Mostrar senha" title="Mostrar ou ocultar a senha"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+
+                    <div id="loginError" class="login-error hidden" role="alert"><i class="fa-solid fa-triangle-exclamation"></i> <span></span></div>
+
+                    <div class="lg-demo-title">
+                        <i class="fa-solid fa-user-group"></i>
+                        <strong>Contas de demonstração</strong>
+                        <span>Clique em uma conta para preencher e-mail e senha automaticamente.</span>
+                    </div>
+
+                    <input type="hidden" id="loginRole" value="">
+                    <input type="hidden" id="loginAccountId" value="">
+
+                    <div class="lg-accounts" id="roleCards"></div>
+
+                    <button type="submit" class="lg-submit">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        Entrar no Sistema
+                    </button>
+
+                </form>
+
+                <div class="lg-footer">
+                    <span>Ainda não tem uma escola cadastrada?</span>
+                    <button type="button" id="publicSchoolButton" class="lg-outline">
+                        <i class="fa-solid fa-school-flag"></i> Adicione sua escola
+                    </button>
+                </div>
+
+                <p class="lg-note"><i class="fa-solid fa-circle-info"></i> Ambiente de demonstração: o login é simulado no navegador, sem servidor.</p>
+
+            </main>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= CADASTRO DE ESCOLA (tela própria) ================= -->
+
+    <section class="school-reg-screen hidden" id="schoolRegScreen">
+
+        <header class="login-topbar">
+            <div class="logo-area small-logo-area">
+                <div class="logo-icon small-logo">
+                    <i class="fa-solid fa-school"></i>
+                </div>
+                <div>
+                    <h1>SIGED</h1>
+                    <p>Cadastro de nova escola</p>
+                </div>
+            </div>
+            <button type="button" class="btn-secondary" id="schoolRegBack">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao login
+            </button>
+        </header>
+
+        <div class="school-reg-stage">
+            <div class="school-reg-panel" id="schoolRegBody"></div>
+        </div>
+
+    </section>
+
+
+    <!-- ================= SISTEMA ================= -->
+
+    <div class="app hidden" id="app">
+
+
+        <!-- MENU LATERAL -->
+
+        <aside class="sidebar" id="sidebar">
+
+            <div class="sidebar-header">
+
+                <div class="sidebar-logo">
+
+                    <div class="logo-icon small-logo">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+
+                    <div>
+                        <h2>SIGED</h2>
+
+                        <span id="sidebarSector">
+                            Gestão Educacional
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="close-sidebar"
+                    id="closeSidebar"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </div>
+
+
+            <!-- USUÁRIO -->
+
+            <div class="user-info">
+
+                <div class="avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div>
+
+                    <strong id="sidebarUser">
+                        Usuário
+                    </strong>
+
+                    <span id="sidebarRole">
+                        Setor
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- MENU DINÂMICO -->
+
+            <nav
+                class="sidebar-menu"
+                id="sideMenu"
+            >
+            </nav>
+
+
+            <div class="sidebar-footer">
+
+                <button
+                    class="logout-button"
+                    id="logoutButton"
+                >
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                    Sair do sistema
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- ÁREA PRINCIPAL -->
+
+        <main class="main-area">
+
+
+            <!-- TOPO -->
+
+            <header class="topbar">
+
+                <div class="top-left">
+
+                    <button
+                        class="icon-button"
+                        id="menuToggle"
+                    >
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+
+
+                    <div>
+
+                        <span
+                            class="breadcrumb"
+                            id="breadcrumb"
+                        >
+                            SIGED / Início
+                        </span>
+
+                        <h1 id="pageTitle">
+                            Painel
+                        </h1>
+
+                    </div>
+
+                </div>
+
+
+                <div class="top-actions">
+
+                    <button
+                        class="icon-button"
+                        id="globalSearchButton"
+                        title="Busca global"
+                    >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+
+                    <button
+                        class="icon-button"
+                        id="themeButton"
+                        title="Alterar tema"
+                    >
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+
+
+                    <!-- NOTIFICAÇÕES -->
+
+                    <div class="notification-area">
+
+                        <button
+                            class="icon-button notification-button"
+                            id="notificationButton"
+                        >
+
+                            <i class="fa-solid fa-bell"></i>
+
+                            <span>3</span>
+
+                        </button>
+
+
+                        <div
+                            class="notification-panel hidden"
+                            id="notificationPanel"
+                        >
+
+                            <h3>Notificações</h3>
+
+
+                            <div class="notification-item">
+
+                                <i class="fa-solid fa-calendar-days"></i>
+
+                                <div>
+                                    <strong>
+                                        Calendário pendente
+                                    </strong>
+
+                                    <p>
+                                        2 escolas precisam finalizar
+                                        o calendário escolar.
+                                    </p>
+                                </div>
+
+                            </div>
+
+
+                            <div class="notification-item">
+
+                                <i class="fa-solid fa-file-circle-check"></i>
+
+                                <div>
+                                    <strong>
+                                        Documento atualizado
+                                    </strong>
+
+                                    <p>
+                                        Nova norma disponível para consulta.
+                                    </p>
+                                </div>
+
+                            </div>
+
+
+                            <div class="notification-item">
+
+                                <i class="fa-solid fa-school"></i>
+
+                                <div>
+                                    <strong>
+                                        Escola atualizada
+                                    </strong>
+
+                                    <p>
+                                        Uma escola alterou seus dados.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        class="profile-button"
+                        id="profileButton"
+                    >
+
+                        <span id="topUserName">
+                            Usuário
+                        </span>
+
+                        <div class="avatar avatar-small">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTEÚDO -->
+
+            <section
+                class="content"
+                id="content"
+            >
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- ================= MODAL ================= -->
+
+    <div
+        class="modal hidden"
+        id="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+    >
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+
+                <h2 id="modalTitle">
+                    Título
+                </h2>
+
+                <button
+                    class="icon-button"
+                    id="modalClose"
+                    aria-label="Fechar janela"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </div>
+
+
+            <div id="modalBody">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= TOAST ================= -->
+
+    <div
+        class="toast hidden"
+        id="toast"
+        role="status"
+        aria-live="polite"
+    >
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>

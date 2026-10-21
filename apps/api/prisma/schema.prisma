@@ -1,0 +1,58 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+
+enum UserRole { SUPERADMIN DIRECAO SECRETARIA_CENTRAL SECRETARIA_ATENDIMENTO PROFESSOR ALUNO RESPONSAVEL }
+enum Shift { MORNING AFTERNOON EVENING FULL_TIME }
+enum CalendarType { ACADEMIC ADMINISTRATIVE EVENTS }
+enum EnrollmentStatus { ACTIVE TRANSFERRED CANCELLED COMPLETED }
+enum AttendanceStatus { PRESENT ABSENT JUSTIFIED }
+
+model School {
+  id String @id @default(cuid())
+  name String
+  legalName String?
+  cnpj String? @unique
+  inepCode String?
+  email String?
+  phone String?
+  address String?
+  city String?
+  state String?
+  zipCode String?
+  active Boolean @default(true)
+  users User[]
+  academicYears AcademicYear[]
+  gradeLevels GradeLevel[]
+  subjects Subject[]
+  classrooms Classroom[]
+  teachers Teacher[]
+  students Student[]
+  guardians Guardian[]
+  calendars Calendar[]
+  medicalCertificates MedicalCertificate[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model User { id String @id @default(cuid()); schoolId String?; name String; email String @unique; passwordHash String; role UserRole; active Boolean @default(true); school School? @relation(fields:[schoolId],references:[id]); teacher Teacher?; student Student?; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([schoolId]) }
+model AcademicYear { id String @id @default(cuid()); schoolId String; name String; year Int; startDate DateTime; endDate DateTime; active Boolean @default(true); school School @relation(fields:[schoolId],references:[id]); classrooms Classroom[]; calendars Calendar[]; @@unique([schoolId,year]) }
+model GradeLevel { id String @id @default(cuid()); schoolId String?; name String; educationLevel String; sequence Int; school School? @relation(fields:[schoolId],references:[id]); templates CurriculumTemplate[]; classrooms Classroom[] }
+model Subject { id String @id @default(cuid()); schoolId String?; name String; code String?; active Boolean @default(true); school School? @relation(fields:[schoolId],references:[id]); templateSubjects CurriculumTemplateSubject[]; classSubjects ClassSubject[] }
+model CurriculumTemplate { id String @id @default(cuid()); schoolId String?; gradeLevelId String; name String; description String?; isDefault Boolean @default(false); gradeLevel GradeLevel @relation(fields:[gradeLevelId],references:[id]); subjects CurriculumTemplateSubject[]; classrooms Classroom[] }
+model CurriculumTemplateSubject { id String @id @default(cuid()); templateId String; subjectId String; weeklyHours Decimal; annualHours Decimal; weeklyClasses Int; template CurriculumTemplate @relation(fields:[templateId],references:[id],onDelete:Cascade); subject Subject @relation(fields:[subjectId],references:[id]); @@unique([templateId,subjectId]) }
+model Classroom { id String @id @default(cuid()); schoolId String; academicYearId String; gradeLevelId String; curriculumTemplateId String?; name String; shift Shift; room String?; capacity Int?; active Boolean @default(true); school School @relation(fields:[schoolId],references:[id]); academicYear AcademicYear @relation(fields:[academicYearId],references:[id]); gradeLevel GradeLevel @relation(fields:[gradeLevelId],references:[id]); curriculumTemplate CurriculumTemplate? @relation(fields:[curriculumTemplateId],references:[id]); subjects ClassSubject[]; schedules ClassSchedule[]; enrollments Enrollment[]; @@index([schoolId]) }
+model ClassSubject { id String @id @default(cuid()); classroomId String; subjectId String; weeklyHours Decimal; annualHours Decimal; weeklyClasses Int; classroom Classroom @relation(fields:[classroomId],references:[id],onDelete:Cascade); subject Subject @relation(fields:[subjectId],references:[id]); schedules ClassSchedule[]; @@unique([classroomId,subjectId]) }
+model ClassSchedule { id String @id @default(cuid()); classroomId String; classSubjectId String; teacherId String?; weekday Int; period Int; startTime String; endTime String; room String?; classroom Classroom @relation(fields:[classroomId],references:[id],onDelete:Cascade); subject ClassSubject @relation(fields:[classSubjectId],references:[id]); teacher Teacher? @relation(fields:[teacherId],references:[id]); @@unique([classroomId,weekday,period]) }
+model Teacher { id String @id @default(cuid()); schoolId String; userId String @unique; registration String?; school School @relation(fields:[schoolId],references:[id]); user User @relation(fields:[userId],references:[id]); schedules ClassSchedule[]
+  assignments TeacherAssignment[]
+}
+model TeacherAssignment { id String @id @default(cuid()); teacherId String; classroomId String; classSubjectId String; teacher Teacher @relation(fields:[teacherId],references:[id]); classroom Classroom @relation(fields:[classroomId],references:[id]); classSubject ClassSubject @relation(fields:[classSubjectId],references:[id]) }
+model Student { id String @id @default(cuid()); schoolId String; userId String? @unique; registration String; name String; birthDate DateTime?; cpf String?; school School @relation(fields:[schoolId],references:[id]); user User? @relation(fields:[userId],references:[id]); enrollments Enrollment[]; grades Grade[]; attendance Attendance[]; @@unique([schoolId,registration]) }
+model Enrollment { id String @id @default(cuid()); schoolId String; studentId String; classroomId String; academicYearId String; enrollmentNumber String; status EnrollmentStatus @default(ACTIVE); enrollmentDate DateTime @default(now()); student Student @relation(fields:[studentId],references:[id]); classroom Classroom @relation(fields:[classroomId],references:[id]); academicYear AcademicYear @relation(fields:[academicYearId],references:[id]); @@unique([schoolId,enrollmentNumber]) }
+model Calendar { id String @id @default(cuid()); schoolId String; academicYearId String; type CalendarType; name String; description String?; active Boolean @default(true); school School @relation(fields:[schoolId],references:[id]); academicYear AcademicYear @relation(fields:[academicYearId],references:[id]); events CalendarEvent[]; @@unique([schoolId,academicYearId,type]) }
+model CalendarEvent { id String @id @default(cuid()); calendarId String; title String; description String?; eventDate DateTime; endDate DateTime?; eventType String?; allDay Boolean @default(true); location String?; calendar Calendar @relation(fields:[calendarId],references:[id],onDelete:Cascade); @@index([calendarId,eventDate]) }
+model Guardian { id String @id @default(cuid()); schoolId String; name String; cpf String?; email String?; phone String?; school School @relation(fields:[schoolId],references:[id]); students StudentGuardian[] }
+model StudentGuardian { id String @id @default(cuid()); studentId String; guardianId String; relationship String; isPrimary Boolean @default(false); student Student @relation(fields:[studentId],references:[id],onDelete:Cascade); guardian Guardian @relation(fields:[guardianId],references:[id],onDelete:Cascade); @@unique([studentId,guardianId]) }
+model MedicalCertificate { id String @id @default(cuid()); schoolId String; studentId String; startDate DateTime; endDate DateTime; reason String?; documentNumber String?; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; school School @relation(fields:[schoolId],references:[id],onDelete:Cascade); student Student @relation(fields:[studentId],references:[id],onDelete:Cascade); @@index([schoolId,studentId,startDate,endDate]) }
+model Assessment { id String @id @default(cuid()); schoolId String; classroomId String; classSubjectId String; teacherId String; academicPeriod String; name String; maxScore Decimal; assessmentDate DateTime; grades Grade[] }
+model Grade { id String @id @default(cuid()); assessmentId String; studentId String; score Decimal; observation String?; assessment Assessment @relation(fields:[assessmentId],references:[id],onDelete:Cascade); student Student @relation(fields:[studentId],references:[id]); @@unique([assessmentId,studentId]) }
+model Attendance { id String @id @default(cuid()); schoolId String; studentId String; classroomId String; classSubjectId String; teacherId String; attendanceDate DateTime; period Int; status AttendanceStatus; student Student @relation(fields:[studentId],references:[id]); @@index([schoolId,studentId,attendanceDate]) }
